@@ -1,0 +1,11 @@
+.auth__text-link {
+  margin-left: 4px;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.auth__text-link:hover {
+  opacity: 0.6;
+}
