@@ -9,8 +9,8 @@
 
 ## Ссылки на проект
 
-IP-адрес x.x.x.x
+IP-адрес 84.252.131.17
 
-Frontend https://...
+Frontend https://s1tt-mesto.nomoreparties.co
 
-Backend https://...
+Backend https://api.s1tt-mesto.nomoreparties.co

@@ -40,19 +40,12 @@ function App() {
 
   useEffect(() => {
     if (loggedIn) {
-      api
-        .getUserInfo()
-        .then(res => {
-          setCurrentUser(res);
+      Promise.all([api.getInitialCards(), api.getUserInfo()])
+        .then(([cards, userInfo]) => {
+          setCards(cards);
+          setCurrentUser(userInfo);
         })
-        .catch(err => console.log(err));
-
-      api
-        .getInitialCards()
-        .then(res => {
-          setCards(res);
-        })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     }
   }, [loggedIn]);
 
@@ -64,13 +57,38 @@ function App() {
         .then(res => {
           setLoggedIn(true);
           navigate('/');
-          setEmail(res.data.email);
+          setEmail(res.email);
         })
         .catch(err => {
           console.log(err);
         });
     }
-  }, [navigate]);
+  }, [loggedIn]);
+
+  useEffect(() => {
+    handleTokenCheck()
+  }, []);
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate("/");
+    }
+  }, [loggedIn, navigate]);
+
+  function handleTokenCheck() {
+    const jwt = localStorage.getItem("jwt")
+    if (jwt) {
+      auth.tokenCheck(jwt).then((res) => {
+        if (res) {
+          setLoggedIn(true);
+          setEmail(res.email);
+          setCurrentUser(res);
+          navigate('/');
+        }
+      })
+        .catch((err) => console.log(err))
+    }
+  }
 
   // на вход принимает объект с текстами ошибок при регистрации\авторизации , а возвращает готовый обработчик
   const handleAuthError = errorMessages => error => {
@@ -107,16 +125,15 @@ function App() {
   }
 
   function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
-
-    // Отправляем запрос в API и получаем обновлённые данные карточки
-    api
-      .changeLikeCardStatus(card._id, !isLiked)
-      .then(newCard => {
-        setCards(state => state.map(c => (c._id === card._id ? newCard : c)));
-      })
-      .catch(err => console.log(err));
+    const likes = card.likes;
+    const checkIfLiked = (c) => c === currentUser._id;
+    const isLiked = likes.some(checkIfLiked);
+    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+      setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+    })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   function handleCardDelete(card) {
@@ -132,7 +149,7 @@ function App() {
     api
       .setUserInfo(user.name, user.about)
       .then(res => {
-        setCurrentUser(res);
+        setCurrentUser(res.updatedUser);
         closeAllPopups();
       })
       .catch(err => console.log(err));
@@ -142,6 +159,7 @@ function App() {
     api
       .changeUserAvatar(user.avatar)
       .then(res => {
+        console.log(res)
         setCurrentUser(res);
         closeAllPopups();
       })
@@ -152,7 +170,7 @@ function App() {
     api
       .addNewCard(name, link)
       .then(newCard => {
-        setCards([newCard, ...cards]);
+        setCards([newCard.card, ...cards]);
         closeAllPopups();
       })
       .catch(err => console.log(err));
@@ -186,7 +204,7 @@ function App() {
       .then(res => {
         localStorage.setItem('jwt', res.token);
         setEmail(email);
-        setLoggedIn(authImageError);
+        setLoggedIn(true);
         navigate('/');
       })
       .catch(handleAuthError(loginErrors));

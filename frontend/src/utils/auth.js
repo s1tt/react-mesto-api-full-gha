@@ -47,5 +47,6 @@ class Auth {
 }
 
 export const auth = new Auth({
-  baseUrl: 'https://auth.nomoreparties.co'
+  baseUrl: 'https://api.s1tt-mesto.nomoreparties.co'
+  // baseUrl: 'http://127.0.0.1:3000'
 });
