@@ -15,7 +15,9 @@ const login = (req, res, next) => {
     const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
     res.send({ token });
   })
-    .catch(() => next(new UnauthorizedError('Переданы некорректные данные')));
+    .catch(() => {
+      next(new UnauthorizedError('Переданы некорректные данные'));
+    });
 };
 
 const getUsers = (req, res, next) => {
@@ -27,7 +29,6 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  console.log(req.user);
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
@@ -45,7 +46,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFound('Пользователь не найден');
       }
-      res.send({ data: user });
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -76,7 +77,6 @@ const createUser = (req, res, next) => {
       _id: user._id,
     }))
     .catch((err) => {
-      console.log(err.name);
       if (err.code === 11000) {
         next(new ConflictError(`${email} уже существует`));
         // return;
@@ -90,18 +90,17 @@ const createUser = (req, res, next) => {
 
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  console.log('req');
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
     { new: true, runValidators: true },
   )
-    .then((newUser) => {
-      if (!newUser) {
+    .then((updatedUser) => {
+      if (!updatedUser) {
         next(new NotFound('Пользователь не найден'));
         return;
       }
-      res.send({ data: newUser });
+      res.send({ updatedUser });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -119,7 +118,7 @@ const updateAvatar = (req, res, next) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((newUser) => res.status(200).send({ data: newUser }))
+    .then((newUser) => res.status(200).send({ newUser }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные'));
