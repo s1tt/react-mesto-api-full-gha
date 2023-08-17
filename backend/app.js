@@ -7,6 +7,7 @@ const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
+const cors = require('cors');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -20,6 +21,7 @@ mongoose.connect(DB_URL, {
 });
 
 app.use(express.json());
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
