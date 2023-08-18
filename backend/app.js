@@ -19,7 +19,16 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://s1tt-mesto.nomoreparties.co',
+    'http://s1tt-mesto.nomoreparties.co',
+    'https://api.s1tt-mesto.nomoreparties.co',
+    'http://api.s1tt-mesto.nomoreparties.co',
+    'http://localhost:3000',
+  ],
+  credentials: true,
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
