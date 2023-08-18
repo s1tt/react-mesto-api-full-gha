@@ -96,6 +96,6 @@ class Api {
 }
 
 export const api = new Api({
-  baseUrl: 'https://api.s1tt-mesto.nomoreparties.co',
-  // baseUrl: 'http://127.0.0.1:3000'
+  // baseUrl: 'https://api.s1tt-mesto.nomoreparties.co',
+  baseUrl: 'http://127.0.0.1:3000'
 });
